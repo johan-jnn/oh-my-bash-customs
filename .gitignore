@@ -1,0 +1,5 @@
+# Remove this directories' scripts as they depend on what is installed on my system
+/*.sh
+
+# Remove the exemple scripts
+example.*

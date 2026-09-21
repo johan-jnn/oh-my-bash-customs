@@ -1,0 +1,40 @@
+DeezerDownloader CLI Tool
+
+A CLI tool used to easily works with the DeezerDownloader tool through its docker image.
+
+-> https://github.com/kmille/deezer-downloader
+-> https://hub.docker.com/r/kmille2/deezer-downloader
+
+Usage :
+
+deezerdownloader <behavior> [...ARGS]
+
+Arguments :
+    Behavior :
+        setup -> After updating the DeezerDownloader image, create the DD_HOME directory and DD_CONFIG_FILE config file if they not exist
+        manual, start, launch -> Start DeezerDownloader and open the panel and Deezer
+        auto -> Start DeezerDownloader (unaccessible by you) and automaticly download the defined playlists
+        update -> Update the DeezerDownloader image
+
+ENV Config :
+
+Variable       | Default value                                | Description
+---------------------------------------------------------------------------
+DD_VERSION     | latest                                       | The version (tag) of the DeezerDownloader docker image
+DD_HOME        | "$HOME/Music/DeezerDownloader"               | The directory of the DeezerDownloader's configuration
+DD_PORT        | 5000 (only in manual mode)                   | The port of the app's interface (accessible in localhost:<DD_PORT>)
+DD_CONFIG_FILE | "$DD_HOME/config.docker.ini"                 | The location of the DeezerDownloader's configuration file
+               | (unset in case DD_DEFAULT_CONFIG is defined) |
+DD_DEEZER_ARL  | unset                                        | You can pass your Deezer's arl token directly with this variable
+
+Automatic download :
+
+For automatic downloads, this script must know the urls from where you want to download.
+
+You can either pass those informations in the `to-download.list` file at you DeezerDownloader's config directory or pass the urls/download files as the argument of the 'auto' script.
+
+-> deezerdownloader auto
+-> deezerdownloader auto https://www.deezer.com/de/track/68925038 https://www.deezer.com/de/playlist/1180748301
+-> deezerdownloader auto https://www.deezer.com/de/track/68925038 ./to-download
+
+The `downloads.list` (or the given files) must contains urls separated by new lines.
