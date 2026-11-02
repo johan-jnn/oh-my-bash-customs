@@ -54,10 +54,18 @@ JSON
 __dd_get_curl_commands() {
   local commands=()
   local urls_input=()
+  local valid_urls=()
   local inputs=("$@" "$DD_HOME/downloads.list")
+
+  local debug_and_exit=0
 
   for input in "${inputs[@]}"; do
     [ -z "$input" ] && continue
+
+    if [ "$input" == "-d" -o "$input" == "--debug-list" ]; then
+      debug_and_exit=1
+      continue
+    fi
 
     if [ -f "$input" ]; then
       local content
@@ -75,11 +83,19 @@ __dd_get_curl_commands() {
 
     if [ "$?" == "0" ];
     then
+      valid_urls+=("$url")
       commands+=("$command")
     else
       echo "Warning: the url '$url' is not valid. Please check the syntax." >&2
     fi
   done
+
+  if [ $debug_and_exit == 1 ]; then
+    echo "${#valid_urls[*]}/${#urls_input[*]} url(s) will be processed:" >&2
+    IFS=$'\n' ; printf -- "${valid_urls[*]}" >&2
+    echo >&2
+    return 1
+  fi
 
   IFS=$'\n' ; printf -- "${commands[*]}"
 }
@@ -87,7 +103,14 @@ __dd_get_curl_commands() {
 # Source in detached mode and without port openned
 DD_RUN_ARGS="-d" DD_PORT="" source $__DIR/vars.sh 0
 
-IFS=$'\n' read -d '' -ra tasks <<< `__dd_get_curl_commands $@`
+local curl_commands
+curl_commands=`__dd_get_curl_commands $@`
+
+if [ $? != 0 ]; then
+  exit
+fi
+
+IFS=$'\n' read -d '' -ra tasks <<< $curl_commands
 unset __dd_get_curl_commands __dd_url_to_curl
 
 local length="${#tasks[*]}"
